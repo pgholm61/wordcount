@@ -8,51 +8,72 @@
 
 #include "wordcount.h"
 
-void wordcount::readFile(const std::string& filename)
+//-----------------------------------------------------------------------------
+int WordCount::readFile(const std::string& filename)
+//-----------------------------------------------------------------------------
 {
-  std::ifstream t;
+  std::ifstream in(filename);
+  if(!in.good())
+    return 1;
+
   std::string line;
   int i=0;
-
-  t.open(filename);
-  while(t) 
+  // Read file line by line and put content in array of json objs
+  while(in) 
     {
-      nlohmann::json j_obj;
-      std::getline(t, line);
+      json j_obj;
+      std::getline(in, line);
       j_obj["file"] = filename;
       j_obj["l_no"] = i++;
       j_obj["text"] = line;
       all_.push_back(j_obj);
     }
-  t.close();
+  in.close();
+
+  return 0;
 }
 
-std::string wordcount::makeMD5(std::string inp)
+
+//-----------------------------------------------------------------------------
+std::string WordCount::makeMD5(std::string inp)
+//-----------------------------------------------------------------------------
 {
   u_char result[MD5_DIGEST_LENGTH];
   MD5((u_char*)inp.c_str(), inp.size(), result);
 
-  std::ostringstream sout;
-  sout<<std::hex<<std::setfill('0');
+  std::ostringstream out;
+  out << std::hex << std::setfill('0');
   for(long long c: result)
-    sout<<std::setw(2)<<(long long)c;
+    out << std::setw(2) << (long long)c;
 
-  return sout.str();
+  return out.str();
 }
 
-nlohmann::json wordcount::countWords(std::string inp)
+
+//-----------------------------------------------------------------------------
+json WordCount::countWords(std::string inp)
+//-----------------------------------------------------------------------------
 {
   std::vector<std::string> line;
   boost::split(line, inp, boost::is_any_of(" \t.,"));
 
-  nlohmann::json word_count;
-  for (int i=0; i<line.size(); i++)
-    word_count[line[i]] = word_count.contains(line[i]) ? int(word_count[line[i]]) + 1 : 1;
 
+  json word_count;
+  for (int i=0; i<line.size(); i++)
+    {
+      // Clean words (i.e. line[i]) of special chars "clinging" to them (is this part of the task?)
+      line[i].erase(std::remove_if(line[i].begin(), line[i].end(), [](char c) { return !std::isalnum(c); }), line[i].end());
+      if(line[i].empty()) // ignore/don't count empty strings
+	continue;
+      word_count[line[i]] = word_count.contains(line[i]) ? int(word_count[line[i]]) + 1 : 1;
+    }
   return word_count;
 }
 
-void wordcount::map()
+
+//-----------------------------------------------------------------------------
+void WordCount::map()
+//-----------------------------------------------------------------------------
 {
   for (auto it = all_.begin(); it != all_.end(); ++it) {
     // Add md5sum
@@ -62,32 +83,35 @@ void wordcount::map()
   } 
 }
 
-nlohmann::json wordcount::reduce()
+
+//-----------------------------------------------------------------------------
+json WordCount::reduce()
+//-----------------------------------------------------------------------------
 {
-  nlohmann::json allwords;
+  json allwords;
 
-  for (auto it = all_.begin(); it != all_.end(); ++it) {
-    nlohmann::json j_obj = (*it)["word_counts"];
-    std::cout << j_obj.dump() << '\n';
+  for (auto it = all_.begin(); it != all_.end(); ++it) 
+    {
+      json j_obj = (*it)["word_counts"];
 
-    for (auto w = j_obj.begin(); w != j_obj.end(); ++w) 
-      {
+      for (auto w = j_obj.begin(); w != j_obj.end(); ++w) 
 	allwords[w.key()] = allwords.contains(w.key()) ? int(allwords[w.key()]) + 1 : int(1);
-      }
-  }
+    }
 
   return allwords;
 }
 
-void wordcount::prettyPrint(const std::string outfile)
+
+//-----------------------------------------------------------------------------
+void WordCount::printAll(const std::string outfile)
+//-----------------------------------------------------------------------------
 {
   if(outfile.size() == 0)
     std::cout << all_.dump(4) << std::endl;
   else
     {
-      std::ofstream s;
-      s.open(outfile);
-      s << all_.dump(4) << std::endl;
-      s.close();
+      std::ofstream out(outfile);
+      out << all_.dump(4) << std::endl;
+      out.close();
     }  
 }

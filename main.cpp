@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 #include "wordcount.h"
 
@@ -9,19 +10,24 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  wordcount wc;
+  WordCount wc;
+  if(wc.readFile(argv[1]))  {
+    std::cerr << "Could not read file " << argv[1] << ". Exiting" <<std::endl;
+    return 1;
+  }
 
-  wc.readFile(argv[1]);
-  wc.prettyPrint("/tmp/a.json"); // Result from task A.
+  wc.printAll("/tmp/a.json"); // Result from task A.
 
   wc.map();
-  wc.prettyPrint("/tmp/b.json"); // Result from task B.
+  wc.printAll("/tmp/b.json"); // Result from task B.
 
-  nlohmann::json wordlist;
-  wordlist["filename"] = argv[1];
+  json wordlist;
+  wordlist["file"] = argv[1];
   wordlist["word_counts"] = wc.reduce(); 
 
-  std::cout << wordlist.dump(4) << std::endl;
+  std::ofstream out("/tmp/c.json");
+  out << wordlist.dump(4) << std::endl;
+  out.close();  // Result from task C
 
   return 0;
 }

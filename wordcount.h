@@ -1,21 +1,23 @@
 #include <string>
-#include "/usr/local/include/nlohmann/json.hpp"
+#include <nlohmann/json.hpp>
 
-class wordcount
+using nlohmann::json;
+
+class WordCount
 {
 
 public:
-  wordcount() { all_ = nlohmann::json::array(); }
-  ~wordcount() {}
+  WordCount() { all_ = json::array(); }
+  ~WordCount() {}
 
-  void readFile(const std::string& filename);
+  int readFile(const std::string& filename);
   void map();
-  nlohmann::json reduce();
+  json reduce();
 
-  void prettyPrint(const std::string outfile = "");
+  void printAll(const std::string outfile = "");
 private:
   std::string makeMD5(std::string inp);
-  nlohmann::json countWords(std::string inp);
+  json countWords(std::string inp);
 
-  nlohmann::json all_;
+  json all_;
 };
