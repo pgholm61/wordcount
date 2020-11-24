@@ -62,6 +62,23 @@ void wordcount::map()
   } 
 }
 
+nlohmann::json wordcount::reduce()
+{
+  nlohmann::json allwords;
+
+  for (auto it = all_.begin(); it != all_.end(); ++it) {
+    nlohmann::json j_obj = (*it)["word_counts"];
+    std::cout << j_obj.dump() << '\n';
+
+    for (auto w = j_obj.begin(); w != j_obj.end(); ++w) 
+      {
+	allwords[w.key()] = allwords.contains(w.key()) ? int(allwords[w.key()]) + 1 : int(1);
+      }
+  }
+
+  return allwords;
+}
+
 void wordcount::prettyPrint(const std::string outfile)
 {
   if(outfile.size() == 0)

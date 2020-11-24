@@ -10,6 +10,7 @@ public:
 
   void readFile(const std::string& filename);
   void map();
+  nlohmann::json reduce();
 
   void prettyPrint(const std::string outfile = "");
 private:
