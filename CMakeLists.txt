@@ -20,7 +20,8 @@ set(JSON_BuildTests OFF CACHE INTERNAL "")
 # include(...) for pulling in other CMake projects anyways.
 add_subdirectory(json)
 
-target_link_libraries(wordcount PRIVATE nlohmann_json::nlohmann_json crypto ssl boost_regex boost_iostreams boost_context )
+##target_link_libraries(wordcount PRIVATE nlohmann_json::nlohmann_json crypto ssl boost_regex boost_iostreams boost_context )
+target_link_libraries(wordcount PRIVATE nlohmann_json::nlohmann_json crypto ssl boost_system)
 
 ##find_package(nlohmann_json 3.2.0 REQUIRED)
 

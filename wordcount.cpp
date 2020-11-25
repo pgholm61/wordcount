@@ -8,6 +8,54 @@
 
 #include "wordcount.h"
 
+/********************************/
+/*     Service functions        */
+/********************************/
+
+//-----------------------------------------------------------------------------
+std::string makeMD5(const std::string inp)
+//-----------------------------------------------------------------------------
+{
+  u_char result[MD5_DIGEST_LENGTH];
+  MD5((u_char*)inp.c_str(), inp.size(), result);
+
+  std::ostringstream out;
+  out << std::uppercase << std::hex << std::setfill('0');
+
+  for(long c: result)
+    out << std::setw(2) << c;
+
+  return out.str();
+}
+
+
+//-----------------------------------------------------------------------------
+json countWords(const std::string inp)
+//-----------------------------------------------------------------------------
+{
+  std::vector<std::string> line;
+  boost::split(line, inp, boost::is_any_of(" \t.,"));
+
+
+  json word_count;
+  for (int i=0; i<line.size(); i++)
+    {
+      // Clean words (i.e. line[i]) of special chars "clinging" to them (is this part of the task?)
+      line[i].erase(std::remove_if(line[i].begin(), line[i].end(), [](char c) { return !std::isalnum(c); }), line[i].end());
+
+      if(line[i].empty()) // ignore/don't count empty strings
+	continue;
+
+      word_count[line[i]] = word_count.contains(line[i]) ? int(word_count[line[i]]) + 1 : 1;
+    }
+
+  return word_count;
+}
+
+/********************************/
+/*     Member functions         */
+/********************************/
+
 //-----------------------------------------------------------------------------
 int WordCount::readFile(const std::string& filename)
 //-----------------------------------------------------------------------------
@@ -35,49 +83,13 @@ int WordCount::readFile(const std::string& filename)
 
 
 //-----------------------------------------------------------------------------
-std::string WordCount::makeMD5(std::string inp)
-//-----------------------------------------------------------------------------
-{
-  u_char result[MD5_DIGEST_LENGTH];
-  MD5((u_char*)inp.c_str(), inp.size(), result);
-
-  std::ostringstream out;
-  out << std::hex << std::setfill('0');
-  for(long long c: result)
-    out << std::setw(2) << (long long)c;
-
-  return out.str();
-}
-
-
-//-----------------------------------------------------------------------------
-json WordCount::countWords(std::string inp)
-//-----------------------------------------------------------------------------
-{
-  std::vector<std::string> line;
-  boost::split(line, inp, boost::is_any_of(" \t.,"));
-
-
-  json word_count;
-  for (int i=0; i<line.size(); i++)
-    {
-      // Clean words (i.e. line[i]) of special chars "clinging" to them (is this part of the task?)
-      line[i].erase(std::remove_if(line[i].begin(), line[i].end(), [](char c) { return !std::isalnum(c); }), line[i].end());
-      if(line[i].empty()) // ignore/don't count empty strings
-	continue;
-      word_count[line[i]] = word_count.contains(line[i]) ? int(word_count[line[i]]) + 1 : 1;
-    }
-  return word_count;
-}
-
-
-//-----------------------------------------------------------------------------
 void WordCount::map()
 //-----------------------------------------------------------------------------
 {
+  
   for (auto it = all_.begin(); it != all_.end(); ++it) {
     // Add md5sum
-    (*it)["md5"] = makeMD5((*it)["text"]); // Note that this is lower case - probably ok!
+    (*it)["md5sum"]      = makeMD5((*it)["text"]);
     // Count words
     (*it)["word_counts"] = countWords((*it)["text"]);   
   } 

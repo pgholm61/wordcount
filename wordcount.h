@@ -15,9 +15,7 @@ public:
   json reduce();
 
   void printAll(const std::string outfile = "");
-private:
-  std::string makeMD5(std::string inp);
-  json countWords(std::string inp);
 
+private:
   json all_;
 };
