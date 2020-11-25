@@ -15,10 +15,15 @@ Build instructions:
 ==================
 Go to your git root (i.e. above wordcount) and:
   
-git clone https://github.com/pgholm61/wordcount.git
-cd wordcount
-mkdir BUILD
-cd BUILD
-cmake3 ..
-make
+  git clone https://github.com/pgholm61/wordcount.git
+
+  cd wordcount
+
+  mkdir BUILD
+    
+  cd BUILD
+
+  cmake3 ..
+    
+  make
 
