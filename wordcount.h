@@ -7,15 +7,15 @@ class WordCount
 {
 
 public:
-  WordCount() { all_ = json::array(); }
-  ~WordCount() {}
+    WordCount() { all_ = json::array(); }
+    ~WordCount() {}
 
-  int readFile(const std::string& filename);
-  void map();
-  json reduce();
+    int readFile(const std::string& filename);
+    void map();
+    json reduce();
 
-  void printAll(const std::string outfile = "");
+    void printAll(const std::string &outfile = "");
 
 private:
-  json all_;
+    json all_;
 };
